@@ -19,4 +19,3 @@ threadpoolctl==3.6.0
 tzdata==2025.2
 faiss-cpu
 sentence-transformers
-numpy
