@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  engine:
+    build: .
+    container_name: docutalk_vector_engine
+    # Como você está usando bibliotecas pesadas (FAISS, Pandas), 
+    # é bom garantir que o container não vai estourar a memória do nada
+    deploy:
+      resources:
+        reservations:
+          memory: 1G
+    volumes:
+      # Sincroniza a pasta src: mexeu no código no seu PC, atualiza no container
+      - ./src:/app/src
+      # Sincroniza a pasta data: jogou base de dados nova aqui, o script já consegue ler
+      - ./data:/app/data
+    environment:
+      # Se no futuro você colocar alguma API Key (tipo OpenAI ou HuggingFace)
+      # ou variável de ambiente, é só jogar aqui
+      - ENVIRONMENT=development
