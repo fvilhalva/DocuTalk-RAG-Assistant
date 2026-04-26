@@ -1,21 +1,35 @@
-version: '3.8'
-
 services:
-  engine:
-    build: .
-    container_name: docutalk_vector_engine
-    # Como você está usando bibliotecas pesadas (FAISS, Pandas), 
-    # é bom garantir que o container não vai estourar a memória do nada
-    deploy:
-      resources:
-        reservations:
-          memory: 1G
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: docutalk_app
+    ports:
+      - "8501:8501"
     volumes:
-      # Sincroniza a pasta src: mexeu no código no seu PC, atualiza no container
-      - ./src:/app/src
-      # Sincroniza a pasta data: jogou base de dados nova aqui, o script já consegue ler
       - ./data:/app/data
+      - ./src:/app/src
     environment:
-      # Se no futuro você colocar alguma API Key (tipo OpenAI ou HuggingFace)
-      # ou variável de ambiente, é só jogar aqui
-      - ENVIRONMENT=development
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_LLM_MODEL: ${OLLAMA_LLM_MODEL:-deepseek-r1:8b}
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
+      DOCUTALK_DATA_DIR: /app/data
+      DOCUTALK_CHUNK_SIZE: ${DOCUTALK_CHUNK_SIZE:-1200}
+      DOCUTALK_CHUNK_OVERLAP: ${DOCUTALK_CHUNK_OVERLAP:-120}
+      DOCUTALK_TOP_K: ${DOCUTALK_TOP_K:-4}
+      DOCUTALK_LOG_FILE: ${DOCUTALK_LOG_FILE:-interactions.csv}
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: docutalk_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
