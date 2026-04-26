@@ -109,6 +109,37 @@ Quick bootstrap option:
 ./scripts/bootstrap-docker.sh
 ```
 
+## Docker GPU Run (NVIDIA, Safe Defaults)
+
+Use this mode when you want Ollama on GPU with conservative limits to avoid overloading your machine.
+
+Pre-reqs:
+
+- NVIDIA driver installed and working (`nvidia-smi`)
+- Docker with NVIDIA Container Toolkit configured
+
+Quick bootstrap with safe defaults:
+
+```bash
+./scripts/bootstrap-docker-gpu-safe.sh
+```
+
+This script uses `docker-compose.gpu-safe.yml` and defaults to:
+
+- `OLLAMA_NUM_PARALLEL=2`
+- `OLLAMA_MAX_LOADED_MODELS=1`
+- `OLLAMA_MAX_QUEUE=32`
+- `OLLAMA_KEEP_ALIVE=20m`
+
+You can override values in `.env` before starting if you need more throughput.
+
+Stop GPU stack:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.gpu-safe.yml stop
+docker compose -f docker-compose.yml -f docker-compose.gpu-safe.yml down
+```
+
 ## CLI Utility
 
 Build or rebuild index from terminal:
